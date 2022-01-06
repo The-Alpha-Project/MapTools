@@ -3,18 +3,23 @@
 // Github:  https://github.com/The-Alpha-Project
 
 using System;
-using System.IO;
 using System.Collections.Generic;
 
 using AlphaCoreExtractor.DBC;
 using AlphaCoreExtractor.Log;
 using AlphaCoreExtractor.Helpers;
 using AlphaCoreExtractor.DBC.Structures;
+using AlphaCoreExtractor.Generators.Mesh;
 
 namespace AlphaCoreExtractor.Core
 {
     public class CMapArea : IDisposable
     {
+        /// <summary>
+        /// This ADT bounds.
+        /// </summary>
+        public Rect Bounds = Rect.Empty;
+
         /// <summary>
         /// General TileBlock information,
         /// </summary>
@@ -55,33 +60,33 @@ namespace AlphaCoreExtractor.Core
         /// </summary>
         private DataChunkHeader DataChunkHeader;
 
-        public CMapArea(uint offset, BinaryReader reader, DataChunkHeader dataChunkHeader)
+        public CMapArea(uint offset, CMapObj adtReader, DataChunkHeader dataChunkHeader, bool buildWMOs = false, bool buildMDXs = false)
         {
             DataChunkHeader = dataChunkHeader;
 
             // MHDR offset
-            reader.SetPosition(offset);
+            adtReader.SetPosition(offset);
 
             // AreaHeader
-            if (!BuildAreaHeader(reader))
+            if (!BuildAreaHeader(adtReader))
                 return;
 
             // MCIN, 256 Entries, so a 16*16 Chunkmap.
-            if (!BuildMCIN(reader))
+            if (!BuildMCIN(adtReader))
                 return;
 
             // MTEX, List of textures used for texturing the terrain in this map tile.
-            if (!BuildMTEX(reader))
+            if (!BuildMTEX(adtReader))
                 return;
 
-            // MDDF, Placement information for doodads (M2 models)
+            // MDDF, Placement information for doodads (MDX models)
             // Additional to this, the models to render are referenced in each MCRF chunk.
-            if (!BuildMDDF(reader))
+            if (!BuildMDDF(adtReader))
                 return;
 
             // MODF, Placement information for WMOs.
             // Additional to this, the WMOs to render are referenced in each MCRF chunk.
-            if (!BuildMODF(reader))
+            if (!BuildMODF(adtReader))
                 return;
 
             // The MCNK chunks have a large block of data that starts with a header, and then has sub-chunks of its own.
@@ -89,13 +94,23 @@ namespace AlphaCoreExtractor.Core
             // a shadow map, etc.
             // MCNK, The header is 128 bytes like later versions, but information inside is placed slightly differently.
             // Offsets are relative to the end of MCNK header.
-            if (!BuildMCNK(reader))
+            if (!BuildMCNK(adtReader))
                 return;
+
+            if (buildWMOs)
+            {
+                // TODO: Build this ADT WMOs objects in order to append them to the terrain mesh.
+            }
+
+            if (buildMDXs)
+            {
+                // TODO: Build this ADT MDXs models objects in order to append them to the terrain mesh.
+            }
 
             Errors = false;
         }
 
-        private bool BuildMCNK(BinaryReader reader)
+        private bool BuildMCNK(CMapObj adtReader)
         {
             try
             {
@@ -103,13 +118,13 @@ namespace AlphaCoreExtractor.Core
                 {
                     for (int y = 0; y < Constants.TileSize; y++)
                     {
-                        reader.SetPosition(TilesInformation[x, y].offset);
+                        adtReader.SetPosition(TilesInformation[x, y].offset);
 
-                        DataChunkHeader.Fill(reader);
+                        DataChunkHeader.Fill(adtReader);
                         if (DataChunkHeader.Token != Tokens.MCNK)
                             throw new Exception($"Invalid token, got [{DataChunkHeader.Token}] expected {"[MCNK]"}");
 
-                        Tiles[x, y] = new SMChunk(reader);
+                        Tiles[x, y] = new SMChunk(adtReader);
                     }
                 }
                 return true;
@@ -122,17 +137,17 @@ namespace AlphaCoreExtractor.Core
             return false;
         }
 
-        private bool BuildMODF(BinaryReader reader)
+        private bool BuildMODF(CMapObj adtReader)
         {
             try
             {
-                DataChunkHeader.Fill(reader);
+                DataChunkHeader.Fill(adtReader);
                 if (DataChunkHeader.Token != Tokens.MODF)
                     throw new Exception($"Invalid token, got [{DataChunkHeader.Token}] expected {"[MODF]"}");
 
                 //MODF (Placement information for WMOs. Additional to this, the WMOs to render are referenced in each MCRF chunk)
-                var dataChunk = reader.ReadBytes(DataChunkHeader.Size);
-                WMOs = SMMapObjDef.BuildFromChunk(dataChunk);
+                var dataChunk = adtReader.ReadBytes(DataChunkHeader.Size);
+                WMOs = SMMapObjDef.BuildFromChunk(dataChunk, adtReader.WMOs);
                 return true;
             }
             catch (Exception ex)
@@ -143,16 +158,16 @@ namespace AlphaCoreExtractor.Core
             return false;
         }
 
-        private bool BuildMDDF(BinaryReader reader)
+        private bool BuildMDDF(CMapObj adtReader)
         {
             try
             {
-                DataChunkHeader.Fill(reader);
+                DataChunkHeader.Fill(adtReader);
                 if (DataChunkHeader.Token != Tokens.MDDF)
                     throw new Exception($"Invalid token, got [{DataChunkHeader.Token}] expected {"[MDDF]"}");
 
-                var dataChunk = reader.ReadBytes(DataChunkHeader.Size);
-                MDXs = SMDoodadDef.BuildFromChunck(dataChunk);
+                var dataChunk = adtReader.ReadBytes(DataChunkHeader.Size);
+                MDXs = SMDoodadDef.BuildFromChunck(dataChunk, (adtReader as CMapObj).MDXs);
                 return true;
             }
             catch (Exception ex)
@@ -163,15 +178,15 @@ namespace AlphaCoreExtractor.Core
             return false;
         }
 
-        private bool BuildMTEX(BinaryReader reader)
+        private bool BuildMTEX(CMapObj adtReader)
         {
             try
             {
-                DataChunkHeader.Fill(reader);
+                DataChunkHeader.Fill(adtReader);
                 if (DataChunkHeader.Token != Tokens.MTEX)
                     throw new Exception($"Invalid token, got [{DataChunkHeader.Token}] expected {"[MTEX]"}");
 
-                var dataChunk = reader.ReadBytes(DataChunkHeader.Size);
+                var dataChunk = adtReader.ReadBytes(DataChunkHeader.Size);
                 MTEXChunk = MTEXChunk.BuildFromChunk(dataChunk);
                 return true;
             }
@@ -183,18 +198,18 @@ namespace AlphaCoreExtractor.Core
             return false;
         }
 
-        private bool BuildMCIN(BinaryReader reader)
+        private bool BuildMCIN(CMapObj adtReader)
         {
             try
             {
-                DataChunkHeader.Fill(reader);
+                DataChunkHeader.Fill(adtReader);
                 if (DataChunkHeader.Token != Tokens.MCIN)
                     throw new Exception($"Invalid token, got [{DataChunkHeader.Token}] expected {"[MCIN]"}");
 
                 // All tiles should be used, meaming we should have valid offset and size for each tile.
                 for (int x = 0; x < Constants.TileSize; x++)
                     for (int y = 0; y < Constants.TileSize; y++)
-                        TilesInformation[x, y] = new SMChunkInfo(reader);
+                        TilesInformation[x, y] = new SMChunkInfo(adtReader);
 
                 return true;
             }
@@ -206,15 +221,15 @@ namespace AlphaCoreExtractor.Core
             return false;
         }
 
-        private bool BuildAreaHeader(BinaryReader reader)
+        private bool BuildAreaHeader(CMapObj adtReader)
         {
             try
             {
-                DataChunkHeader.Fill(reader);
+                DataChunkHeader.Fill(adtReader);
                 if (DataChunkHeader.Token != Tokens.MHDRChunk)
                     throw new Exception($"Invalid token, got [{DataChunkHeader.Token}] expected {"[MHDRChunk]"}");
 
-                AreaHeader = new SMAreaHeader(reader);
+                AreaHeader = new SMAreaHeader(adtReader);
                 return true;
             }
             catch (Exception ex)
@@ -223,6 +238,18 @@ namespace AlphaCoreExtractor.Core
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// Set ADT bounds.
+        /// </summary>
+        public void SetBounds(uint tileX, uint tileY)
+        {
+            var topLeftX = Constants.CenterPoint - ((tileX) * Constants.TileSizeYrds);
+            var topLeftY = Constants.CenterPoint - ((tileY) * Constants.TileSizeYrds);
+            var botRightX = topLeftX - Constants.TileSizeYrds;
+            var botRightY = topLeftY - Constants.TileSizeYrds;
+            Bounds = new Rect(new Point(topLeftX, topLeftY), new Point(botRightX, botRightY));
         }
 
         #region #Helpers

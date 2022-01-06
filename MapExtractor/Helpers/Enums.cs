@@ -19,7 +19,7 @@ namespace AlphaCoreExtractor.Helpers.Enums
         HasLiquid = FLAG_LQ_RIVER | FLAG_LQ_OCEAN | FLAG_LQ_MAGMA
     }
 
-    public enum CoordinatesType
+    public enum CoordinatesType : int
     {
         Recast,
         WoW,

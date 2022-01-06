@@ -12,11 +12,24 @@ namespace AlphaCoreExtractor.Core
         public float y;
         public float z;
 
-        public C3Vector(BinaryReader reader)
+        /// <summary>
+        /// Vector3
+        /// </summary>
+        /// <param name="toWowCoords">To get WoW coords, read it as: {Y, Z, X}</param>
+        public C3Vector(BinaryReader reader, bool toWowCoords = false)
         {
-            z = reader.ReadSingle();
-            y = reader.ReadSingle();
-            z = reader.ReadSingle();
+            if (!toWowCoords)
+            {
+                z = reader.ReadSingle();
+                y = reader.ReadSingle();
+                z = reader.ReadSingle();
+            }
+            else
+            {
+                y = reader.ReadSingle();
+                z = reader.ReadSingle();
+                x = reader.ReadSingle();
+            }
         }
     }
 }

@@ -185,6 +185,8 @@ namespace AlphaCoreExtractor.Core
                                 continue;
                             }
 
+                            mapArea.SetBounds(x, y);
+
                             UsableTiles++;
                             TileBlocks[x, y] = mapArea;
                         }
@@ -210,7 +212,7 @@ namespace AlphaCoreExtractor.Core
 
                 DataChunkHeader.Fill(this);
                 if (DataChunkHeader.Token == Tokens.MODF)
-                    MODF = new SMMapObjDef(this);
+                    MODF = new SMMapObjDef(this, this.WMOs);
                 return true;
             }
             catch (Exception ex)

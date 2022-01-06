@@ -4,12 +4,14 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Reflection;
+using System.Collections.Generic;
 
 using AlphaCoreExtractor.Core;
 using AlphaCoreExtractor.Helpers;
-using AlphaCoreExtractor.Helpers.Enums;
+using AlphaCoreExtractor.Generators.Mesh;
 
 namespace AlphaCoreExtractor.Generators
 {
@@ -22,30 +24,24 @@ namespace AlphaCoreExtractor.Generators
             fs.Write(Encoding.ASCII.GetBytes(version), 0, 10);
         }
 
-        public static void ToRecastCoordinates<T>(this Vector<T> vertex)
+        public static IEnumerable<Vector3> ToRecastVerts(this IList<Vector3> vertices)
         {
-            if (vertex.CoordsType == CoordinatesType.Recast)
-                return;
-
-            var z = vertex.X;
-            vertex.X = vertex.Y;
-            vertex.Y = vertex.Z;
-            vertex.Z = z;
-
-            vertex.CoordsType = CoordinatesType.Recast;
+            return vertices.Select(t => t.ToRecastVert());
         }
 
-        public static void ToWoWCoordinates<T>(this Vector<T> vertex)
+        public static IEnumerable<Vector3> ToWowVerts(this IList<Vector3> vertices)
         {
-            if (vertex.CoordsType == CoordinatesType.WoW)
-                return;
+            return vertices.Select(t => t.ToWowVert());
+        }
 
-            var z = vertex.X;
-            vertex.X = vertex.Z;
-            vertex.Z = vertex.Y;
-            vertex.Y = z;
+        public static Vector3 ToRecastVert(this Vector3 vertex)
+        {
+            return new Vector3(vertex.Y, vertex.Z, vertex.X);
+        }
 
-            vertex.CoordsType = CoordinatesType.WoW;
+        public static Vector3 ToWowVert(this Vector3 vertex)
+        {
+            return new Vector3(vertex.Z, vertex.X, vertex.Y);
         }
 
         public static Cell TransformHeightData(this CMapArea tileBlock)
@@ -67,6 +63,13 @@ namespace AlphaCoreExtractor.Generators
             cell.V9[128, 128] = (float)tileBlock.Tiles[15, 15].MCVTSubChunk.V9[8, 8];
 
             return cell;
+        }
+
+        public const float Epsilon = 1e-6f;
+
+        public static bool IsWithinEpsilon(this float val, float otherVal)
+        {
+            return ((val <= (otherVal + Epsilon)) && (val >= (otherVal - Epsilon)));
         }
 
         public static float CalculateZ(this Cell cell, double cy, double cx)

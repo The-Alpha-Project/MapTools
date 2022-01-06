@@ -22,6 +22,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -31,6 +32,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>AlphaCoreLogo.ico</ApplicationIcon>
@@ -44,6 +46,7 @@
     <LangVersion>7.3</LangVersion>
     <ErrorReport>prompt</ErrorReport>
     <Prefer32Bit>true</Prefer32Bit>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <OutputPath>bin\x64\Release\</OutputPath>
@@ -54,6 +57,7 @@
     <LangVersion>7.3</LangVersion>
     <ErrorReport>prompt</ErrorReport>
     <Prefer32Bit>true</Prefer32Bit>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -64,6 +68,7 @@
     <LangVersion>7.3</LangVersion>
     <ErrorReport>prompt</ErrorReport>
     <Prefer32Bit>true</Prefer32Bit>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
     <OutputPath>bin\x86\Release\</OutputPath>
@@ -74,6 +79,7 @@
     <LangVersion>7.3</LangVersion>
     <ErrorReport>prompt</ErrorReport>
     <Prefer32Bit>true</Prefer32Bit>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="ICSharpCode.SharpZipLib, Version=0.86.0.518, Culture=neutral, PublicKeyToken=1b03e6acf1164f73, processorArchitecture=MSIL">
@@ -83,6 +89,7 @@
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Core\BinaryReaderProgress.cs" />
@@ -117,6 +124,23 @@
     <Compile Include="DBC\Structures\DBCMap.cs" />
     <Compile Include="Generators\Extensions.cs" />
     <Compile Include="Generators\MapFilesGenerator.cs" />
+    <Compile Include="Generators\Mesh\BoundingBox.cs" />
+    <Compile Include="Generators\Mesh\BoundingSphere.cs" />
+    <Compile Include="Generators\Mesh\CFace.cs" />
+    <Compile Include="Generators\Mesh\CVertex.cs" />
+    <Compile Include="Generators\Mesh\Enums.cs" />
+    <Compile Include="Generators\Mesh\Matrix.cs" />
+    <Compile Include="Generators\Mesh\MeshClipper.cs" />
+    <Compile Include="Generators\Mesh\Plane.cs" />
+    <Compile Include="Generators\Mesh\Point.cs" />
+    <Compile Include="Generators\Mesh\Quaternion.cs" />
+    <Compile Include="Generators\Mesh\Ray.cs" />
+    <Compile Include="Generators\Mesh\Rect.cs" />
+    <Compile Include="Generators\Mesh\Size.cs" />
+    <Compile Include="Generators\Mesh\Vector2.cs" />
+    <Compile Include="Generators\Mesh\Vector3.cs" />
+    <Compile Include="Generators\Mesh\Vector4.cs" />
+    <Compile Include="Generators\Mesh\VertCoord.cs" />
     <Compile Include="Generators\TerrainMeshGenerator.cs" />
     <Compile Include="Helpers\Configuration.cs" />
     <Compile Include="Helpers\Constants.cs" />

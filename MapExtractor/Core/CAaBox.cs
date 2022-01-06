@@ -11,10 +11,10 @@ namespace AlphaCoreExtractor.Core
         public C3Vector b;
         public C3Vector t;
 
-        public CAaBox(BinaryReader reader)
+        public CAaBox(BinaryReader reader, bool toWowCoords = false)
         {
-            b = new C3Vector(reader);
-            t = new C3Vector(reader);
+            b = new C3Vector(reader, toWowCoords);
+            t = new C3Vector(reader, toWowCoords);
         }
     }
 }

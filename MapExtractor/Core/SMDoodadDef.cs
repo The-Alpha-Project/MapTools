@@ -11,6 +11,7 @@ namespace AlphaCoreExtractor.Core
 {
     public class SMDoodadDef
     {
+        public string filePath;
         public uint nameId;
         public uint uniqueId;
         public C3Vector pos;
@@ -18,17 +19,18 @@ namespace AlphaCoreExtractor.Core
         public ushort scale;
         public ushort flags;
 
-        public SMDoodadDef(BinaryReader reader)
+        public SMDoodadDef(BinaryReader reader, List<string> mdxPaths)
         {
             nameId = reader.ReadUInt32();
+            filePath = mdxPaths[(int)nameId];
             uniqueId = reader.ReadUInt32();
-            pos = new C3Vector(reader);
-            rot = new C3Vector(reader);
+            pos = new C3Vector(reader, true);
+            rot = new C3Vector(reader, true);
             scale = reader.ReadUInt16();
             flags = reader.ReadUInt16();
         }
 
-        public static Dictionary<uint, SMDoodadDef> BuildFromChunck(byte[] chunk)
+        public static Dictionary<uint, SMDoodadDef> BuildFromChunck(byte[] chunk, List<string> mdxPaths)
         {
             Dictionary<uint, SMDoodadDef> mdxDefs = new Dictionary<uint, SMDoodadDef>();
             using (MemoryStream ms = new MemoryStream(chunk))
@@ -36,7 +38,7 @@ namespace AlphaCoreExtractor.Core
             {
                 while (reader.BaseStream.Position != chunk.Length)
                 {
-                    var doodadDef = new SMDoodadDef(reader);
+                    var doodadDef = new SMDoodadDef(reader, mdxPaths);
                     mdxDefs.Add(doodadDef.uniqueId, doodadDef);
                 }
             }
