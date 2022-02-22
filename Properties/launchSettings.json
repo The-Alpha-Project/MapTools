@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "MeshGenerator": {
+      "commandName": "Project",
+      "remoteDebugEnabled": false,
+      "nativeDebugging": true
+    }
+  }
+}

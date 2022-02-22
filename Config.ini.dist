@@ -1,0 +1,5 @@
+[Configuration]
+WoWPath=C:\Program Files (x86)\World of Warcraft
+WoWBuild=0.5.3.3368
+ZResolution=256
+GenerateMesh=0

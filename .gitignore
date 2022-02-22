@@ -3,11 +3,9 @@
 **.dbc
 **.dll
 **.wdt
-
-MapExtractor/.vs
-MapExtractor/bin
-MapExtractor/Build
-MapExtractor/obj
-MapExtractor/packages
-MapExtractor/Config.txt
-MapExtractor/Config.ini
+**.vs
+/bin
+/obj
+/packages
+/Config.txt
+/Config.ini
