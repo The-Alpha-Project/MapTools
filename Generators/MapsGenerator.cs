@@ -164,8 +164,8 @@ namespace MapTools.Generators
         private static void WriteHeightMap(BinaryWriter binaryWriter, ADT adt)
         {
             var transformed = adt.TransformHeightData();
-            for (int cy = 0; cy < 256; cy++)
-                for (int cx = 0; cx < 256; cx++)
+            for (int cy = 0; cy < Configuration.ZResolution; cy++)
+                for (int cx = 0; cx < Configuration.ZResolution; cx++)
                     binaryWriter.Write(transformed.CalculateZ(cy, cx));
         }
     }
